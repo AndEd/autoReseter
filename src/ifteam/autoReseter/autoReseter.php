@@ -21,7 +21,12 @@ class autoReseter extends PluginBase implements Listener {
 	public function onEnable() {
 		@mkdir ( $this->getDataFolder () );
 		$this->getServer ()->getPluginManager ()->registerEvents ( $this, $this );
-		$this->resetTimer = (new Config ( $this->getDataFolder () . "resetTimer.yml", Config::YAML, [ "resetCycle" => 36000 ] ))->getAll ();
+		$this->resetTimer = (new Config ( $this->getDataFolder () . "resetTimer.yml", Config::YAML, [
+			"resetCycle" => 36000,
+			"closeMSG" => TextFormat::DARK_PURPLE . "[안내] 서버가 곧 재부팅됩니다...",
+			"kickMSG" => "서버가 잠시후 재부팅됩니다!",
+			"resetMSG" => TextFormat::DARK_PURPLE . "[안내] 서버가 10초뒤 5~10초간 재부팅됩니다 *자동재부팅*"
+		] ))->getAll ();
 		$this->getServer ()->getScheduler ()->scheduleDelayedTask ( new ResetTask ( $this ), $this->resetTimer ["resetCycle"] );
 	}
 	/**
@@ -29,11 +34,7 @@ class autoReseter extends PluginBase implements Listener {
 	 * @var autoReset Notification
 	 */
 	public function Reset() {
-		$this->getServer ()->broadcastMessage ( TextFormat::DARK_PURPLE . "[안내] 서버가 10초뒤 5~10초간 재부팅됩니다 *자동재부팅*" );
-		$this->getServer ()->broadcastMessage ( TextFormat::DARK_PURPLE . "[안내] 서버가 10초뒤 5~10초간 재부팅됩니다 *자동재부팅*" );
-		$this->getServer ()->broadcastMessage ( TextFormat::DARK_PURPLE . "[안내] 서버가 10초뒤 5~10초간 재부팅됩니다 *자동재부팅*" );
-		$this->getServer ()->broadcastMessage ( TextFormat::DARK_PURPLE . "[안내] 서버가 10초뒤 5~10초간 재부팅됩니다 *자동재부팅*" );
-		$this->getServer ()->broadcastMessage ( TextFormat::DARK_PURPLE . "[안내] 서버가 10초뒤 5~10초간 재부팅됩니다 *자동재부팅*" );
+		$this->getServer ()->broadcastMessage ( $this->resetTimer["resetMSG"] );
 		$this->getServer ()->getScheduler ()->scheduleDelayedTask ( new ShutdownTask ( $this ), 20 * 10 );
 	}
 	/**
@@ -41,11 +42,7 @@ class autoReseter extends PluginBase implements Listener {
 	 * @var execute autoReset
 	 */
 	public function Shutdown() {
-		$this->getServer ()->broadcastMessage ( TextFormat::DARK_PURPLE . "[안내] 서버가 재부팅됩니다.." );
-		$this->getServer ()->broadcastMessage ( TextFormat::DARK_PURPLE . "[안내] 서버가 재부팅됩니다.." );
-		$this->getServer ()->broadcastMessage ( TextFormat::DARK_PURPLE . "[안내] 서버가 재부팅됩니다.." );
-		$this->getServer ()->broadcastMessage ( TextFormat::DARK_PURPLE . "[안내] 서버가 재부팅됩니다.." );
-		$this->getServer ()->broadcastMessage ( TextFormat::DARK_PURPLE . "[안내] 서버가 재부팅됩니다.." );
+		$this->getServer ()->broadcastMessage ( $this->resetTimer["closeMSG"] );
 		/**
 		 *
 		 * @var entitiesSave
@@ -57,7 +54,7 @@ class autoReseter extends PluginBase implements Listener {
 			$level->save ( \true );
 		}
 		foreach ( $this->getServer ()->getOnlinePlayers () as $player ) {
-			$player->kick ( "서버가 곧 재부팅됩니다" );
+			$player->kick ( $this->resetTimer["kickMSG"] );
 		}
 		$this->getServer ()->shutdown ();
 	}
